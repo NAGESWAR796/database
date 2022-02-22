@@ -1,0 +1,50 @@
+{
+    "Order": {
+        "orderId": "100020",
+        "buyerRefNumber": "abc",
+        "orderDate": "2021-10-19",
+        "docType": "APP",
+        "orderType": "TA",
+        "salesOrg": "1000",
+        "distributionChannel": "01",
+        "division": "00",
+        "currency": "USD",
+        "ShippingCondition": "90",
+        "priority": "",
+        "notes": "1970-12-10",
+        "LineItem": [{
+                "itemId": "000001",
+                "quantity": "1",
+                "Product": {
+                    "id": "RPM-BP100"
+                }
+            }, {
+                "itemId": "000002",
+                "quantity": "1",
+                "Product": {
+                    "id": "FRT"
+                }
+            }
+        ],
+        "Addresses": {
+            "Address": [{
+                    "type": "AG",
+                    "id": "0010803001"
+                }, {
+                    "type": "WE",
+                    "id": "0010101003",
+                    "link": "001",
+                    "firstName": "David",
+                    "lastName": "Jones",
+                    "address1": "22 test dr",
+                    "address2": "as",
+                    "city": "DANSVILLE",
+                    "postal Code": "14437",
+                    "StateOrProvince": "NY",
+                    "Country": "US",
+                    "email": "misfen@yahoo.com"
+                }
+            ]
+        }
+    }
+}

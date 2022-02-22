@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="e6fed591-f751-44b5-836a-f885db4eecd4" >
+		
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>	
+	<file:config name="File_Config" doc:name="File Config" doc:id="093f2724-e478-4e25-94d5-654235e69710" />
+	<flow name="dataweave2.0Flow" doc:id="f0a8c6f8-8c04-42bb-9a3d-de240c6b2a35" initialState="stopped">
+		<http:listener doc:name="Listener" doc:id="f5bb865a-e733-4e1d-bab2-eb9af233036c" config-ref="HTTP_Listener_config" path="/dataweave"/>
+		<file:read doc:name="Read" doc:id="3ff39a1b-68f4-43b6-948b-8b4468e04dcb" config-ref="File_Config" path="C:\Users\HANNAH\Desktop\json\dataweave_input.json"/>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="87e725e1-1a94-482e-b0b9-501f1d9b9551" />
+		<ee:transform doc:name="Transform Message" doc:id="c43915af-f00b-4ac8-8bbc-3ef778ebf567" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"PARTNERADDRESSES":(
+		payload.Order.Addresses.Address filter $."type" =='WE'
+	) map {
+		"ADDR_NO":$.link,
+		"NAME":$.firstName,
+		"NAME_2":$.lastName,
+		"E_MAIL":$.email,
+		"STREET":$.address1 ++ " "++ $.address2,
+		"CITY":$.city,
+		"POSTL_CODE":$."postal Code",
+		"REGION":$.StateOrProvince,
+		"COUNTRY":$.Country
+		 
+	}
+		
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="4295a55a-3d80-482d-b02a-dc0f9fa6ee5f" message="#[payload]"/>
+	</flow>
+	<flow name="dataweave2.0Flow1" doc:id="5e90e53a-2bda-46f1-a927-33ba014da6c8" >
+		<http:listener doc:name="Listener" doc:id="3319808c-da65-4a33-8ea4-00711f29675f" config-ref="HTTP_Listener_config" path="/dataweave_2"/>
+		<file:read doc:name="Read" doc:id="edc34bfd-42c7-4e72-8ba6-5821e8c2ef7f" config-ref="File_Config" path="C:\Users\HANNAH\Desktop\json\dataweave_2.json"/>
+		<ee:transform doc:name="Transform Message" doc:id="39e56821-322f-4c73-b259-c40c7ec3a0d9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.Value filter $$ != 2]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="d792452a-0f57-4382-8684-f3424acac83b" message="#[payload]"/>
+	</flow>
+	<flow name="dataweave2.0Flow2" doc:id="3f0897e8-9e08-4b4c-b0bc-2263aaa607dc" >
+		<http:listener doc:name="Listener" doc:id="a4728c37-91f6-4868-82c2-d9fcb4149b0b" config-ref="HTTP_Listener_config" path="/dataweave3"/>
+		<file:read doc:name="Read" doc:id="9b6a739d-3313-4a59-b644-0bb0cb2666db" config-ref="File_Config" path="C:\Users\HANNAH\Desktop\json\dataweave3.json"/>
+		<ee:transform doc:name="Transform Message" doc:id="20c8ff57-eaf1-4d0c-be75-6b059b7bf7b1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var partNo= payload map (value ,key ) ->
+{
+partNumber: value.partNumber
+}
+---
+{
+  "apiKey": "abcde",
+  "customerID": payload.customerID[0],
+  "distributorID": payload.distributorID[0],
+  "items": flatten(partNo).partNumber
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

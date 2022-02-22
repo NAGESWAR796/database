@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="b768d44d-b220-4479-96c8-153dc13b6a45" basePath="/msg" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="propartiesFlow" doc:id="14e4b94e-b269-4510-9d4f-17188c865722" >
+		<http:listener doc:name="Listener" doc:id="3a27c3d7-a0fa-4a23-992d-6e1ba94fe51c" config-ref="HTTP_Listener_config" path="/prop" allowedMethods="GET"/>
+		<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message_proparties":&#10;	{&#10;		"prop1":attributes.listenerPath,&#10;		"prop2":attributes.version,&#10;		"prop3":attributes.method,&#10;		"prop4":attributes.scheme,&#10;		"prop5":attributes.remoteAddress	&#10;	},&#10;	"server_proparties":&#10;	{&#10;	"server_prop1":server.fileSeparator,&#10;	"server_prop2":server.host,&#10;	"server_prop3":server.javaVendor,&#10;	"server_prop4":server.javaVersion&#10;	&#10;	},&#10;	"app_proparties":&#10;	{&#10;		"app_prop1":app.name,&#10;		"app_prop2":app.encoding,&#10;		"app_prop3":app.workDir&#10;	},&#10;	"mule_proparties":&#10;	{&#10;		"mule_prop1":mule.clusterId,&#10;		"mule_prop2":mule.home,&#10;		"mule_prop3":mule.version&#10;	}&#10;}]' doc:name="Set Payload" doc:id="e994c56f-e0bb-46c5-8b54-09548f851db3" mimeType="application/json"/>
+		<logger level="INFO" doc:name="Logger" doc:id="70495dc8-5a6d-439e-8603-f87dc43940dd" message="#[payload]"/>
+	</flow>
+</mule>

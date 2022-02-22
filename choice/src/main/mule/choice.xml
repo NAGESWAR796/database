@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="2b3d137a-3bf1-45ff-a4d5-3f3ad1f95d34" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="choiceFlow" doc:id="0eba548e-2ea3-4c0b-9060-ce6f3bb3001b" >
+		<http:listener doc:name="Listener" doc:id="9e36e4c3-3037-434d-9694-7a46d435acb1" config-ref="HTTP_Listener_config" path="/choice"/>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="886e8fdd-2ef5-4cf1-8ecc-151c5c2fc010" />
+		<set-variable value="#[attributes.queryParams.str1]" doc:name="V1" doc:id="e7d9b850-e461-4cac-a9dc-0a17689420eb" variableName="v1"/>
+		<set-variable value="#[attributes.queryParams.str2]" doc:name="V2" doc:id="07b5fc37-84b0-4268-9a9d-e0ef66dc7c13" variableName="v2"/>
+		<ee:transform doc:name="Transform Message" doc:id="721db989-44f5-4df4-a637-21bd5ad03a13" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"add":( vars.v1 default" ") + ( vars.v2 default " ")  
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="a4a79f3b-4778-45c3-abd5-5aac59e10612" message="#[payload]"/>
+	</flow>
+</mule>

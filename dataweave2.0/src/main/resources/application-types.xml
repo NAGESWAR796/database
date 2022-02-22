@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="input" format="json">
+      <types:shape format="json-schema" location="schemas/datawave_schema.json"/>
+    </types:type>
+    <types:type name="input2" format="json">
+      <types:shape format="weave" example="examples/dataweave_2.json"><![CDATA[%dw 2.0
+
+type input2 = {|
+  Value: Array<{|    status: String,     id: Number {"typeId": "int"},     employee_name: String,     employee_salary: Number {"typeId": "int"},     employee_age: Number {"typeId": "int"}  |}>
+|} {"example": "{\\\"Value\\\":[{\\\"status\\\":\\\"success\\\",\\\"id\\\":1,\\\"employee_name\\\":\\\"Tiger Nixon\\\",\\\"employee_salary\\\":100000,\\\"employee_age\\\":35},{\\\"status\\\":\\\"success\\\",\\\"id\\\":1,\\\"employee_name\\\":\\\"Tiger Nixon\\\",\\\"employee_salary\\\":10000,\\\"employee_age\\\":55},{\\\"status\\\":null,\\\"id\\\":1,\\\"employee_name\\\":\\\"Tiger Nixon\\\",\\\"employee_salary\\\":23000,\\\"employee_age\\\":35}]}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="input3" format="json">
+      <types:shape format="weave" example="examples/dataweave3.json"><![CDATA[%dw 2.0
+
+type input3 = Array<{|  partNumber: String,   customerID: String,   distributorID: String|}> {"example": "[{\\\"partNumber\\\":\\\"UU1008030\\\",\\\"customerID\\\":\\\"60092580\\\",\\\"distributorID\\\":\\\"60937242\\\"},{\\\"partNumber\\\":\\\"A40P30\\\",\\\"customerID\\\":\\\"60092580\\\",\\\"distributorID\\\":\\\"60937242\\\"},{\\\"partNumber\\\":\\\"UU1008033\\\",\\\"customerID\\\":\\\"60092581\\\",\\\"distributorID\\\":\\\"60937241\\\"},{\\\"partNumber\\\":\\\"A40P34\\\",\\\"customerID\\\":\\\"60092581\\\",\\\"distributorID\\\":\\\"60937241\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#c43915af-f00b-4ac8-8bbc-3ef778ebf567">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="input"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#39e56821-322f-4c73-b259-c40c7ec3a0d9">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="input2"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#20c8ff57-eaf1-4d0c-be75-6b059b7bf7b1">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="input3"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

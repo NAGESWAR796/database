@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="f471bab3-5fb7-4263-a7df-10b1a85e5d5d" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="b17aa307-419e-4949-b44f-405c3f00eb58" >
+		<email:smtp-connection host="smtp.gmail.com" user="nageswar790796@gmail.com" password="8886790796" >
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="4f6344e2-e335-43fc-828e-01305c52ccce" />
+	<email:imap-config name="Email_IMAP" doc:name="Email IMAP" doc:id="a5da7841-eaa6-4240-8687-88e3caaceee5" >
+		<email:imap-connection host="imap.gmail.com" user="nageswar790796@gmail.com" password="8886790796" >
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:imap-connection>
+	</email:imap-config>
+	<email:imap-config name="Email_IMAP1" doc:name="Email IMAP" doc:id="5d1cc455-dd1a-4fd3-b9d6-4fe2180baa7b" >
+		<email:imap-connection host="imap.gmail.com" user="nageswar790796@gmail.com" password="8886790796" >
+			<email:properties >
+				<email:property key="email.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:imap-connection>
+	</email:imap-config>
+	<flow name="email_01Flow" doc:id="0bb7afa0-3643-4826-a382-2a5061cb0fa6" >
+		<http:listener doc:name="Listener" doc:id="59a44edc-2676-492a-840d-b98e7121fba5" config-ref="HTTP_Listener_config" path="/email_sent"/>
+		<logger level="INFO" doc:name="Logger" doc:id="15d718a8-d4bc-4f87-b0bb-67028ad0037b" message="hello Mr.kishore i completed my task what you asign to me. "/>
+		<file:read doc:id="3250fb42-74fb-40b9-a036-10d962af79ef" config-ref="File_Config" path="C:\Users\HANNAH\Desktop\fileconnector\file\INPUT\4\emp_schema.json"/>
+		<email:send doc:name="Send" doc:id="39d1cfc3-daff-468b-ad4f-098b55dddc89" config-ref="Email_SMTP" fromAddress="nageswar790796@gmail.com" subject="faild documents ">
+			<email:to-addresses >
+				<email:to-address value="nag0492@gmail.com" />
+			</email:to-addresses>
+			<email:cc-addresses >
+				<email:cc-address value="nageswar.nag492@gmail.com" />
+			</email:cc-addresses>
+			<email:attachments ><![CDATA[#[{
+ 	"attachment.json":payload
+ 	}]]]></email:attachments>
+		</email:send>
+		<ee:transform doc:name="Transform Message" doc:id="158c22c8-3233-4aa1-9a0e-991a2b6dfcbf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+employees:
+{
+	"employee": payload
+}
+
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="11937c0c-7dbb-4a85-8d18-6ec991d3271d" message="senting mail is : #[payload]"/>
+	</flow>
+</mule>
