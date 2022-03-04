@@ -1,0 +1,15 @@
+http:
+  port: "8081"
+  path1: "db_create"
+  path2: "db_table_create"
+  path3: "db_inserttable"
+db:
+  host: "localhost"
+  port: "3306"
+  user: "mule"
+  pswd: "![ZyinlsluW7Uuf7pNNjyP8A==]"
+  db1: "students_info"
+
+  
+ 
+  

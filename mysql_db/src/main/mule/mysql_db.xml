@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="64ff893f-7fd8-4e4a-b682-71ee3b02bbd6" file="dev.yaml" />
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="e6937113-cd16-4778-8d3a-571092fc73fa" >
+		<http:listener-connection host="0.0.0.0" port="${secure::http.port}" />
+	</http:listener-config>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="55115540-f989-46ef-9a25-74cf4403aa32" file="dev.yaml" key="password12345678" />
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="5e108435-2885-422d-86e0-5133d6e95c49" >
+		<db:my-sql-connection host="${secure::db.host}" port="${secure::db.port}" user="${secure::db.user}" password="${secure::db.pswd}" database="${secure::db.db1}" />
+	</db:config>
+	<sftp:config name="SFTP_Config" doc:name="SFTP Config" doc:id="00f870a2-af25-4877-9469-ce3cfc54e645" >
+		<sftp:connection host="localhost" port="2222" username="mule_SFTP" password="soft@123" />
+	</sftp:config>
+	<ftp:config name="FTP_Config" doc:name="FTP Config" doc:id="bb04dbd5-b4af-4419-a365-be20b7dbb90d" >
+		<ftp:connection host="192.168.0.12" username="HANNAH" password="Rh@0609#" />
+	</ftp:config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="0812b753-bbcf-4241-bc8e-5ab167d0a159" />
+	<flow name="mysql_db_create_table" doc:id="cbe62886-8afe-46bd-8c03-785ef5112eb1" initialState="started">
+		<http:listener doc:name="Listener" doc:id="dd351eed-8888-4302-9c82-a488f9ac5602" config-ref="HTTP_Listener_config" path="${http.path1}"/>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="0ecc838b-3121-41e5-bbd0-c7f8b5a127c7" />
+		<db:execute-ddl doc:name="Execute DDL" doc:id="968591c5-2ef6-4be3-aa9e-472e31491eba" config-ref="Database_Config">
+			<db:sql ><![CDATA[TRUNCATE abm_college;
+]]></db:sql>
+		</db:execute-ddl>
+		<logger level="INFO" doc:name="Logger" doc:id="9be46c79-75ad-460b-bd90-62c3f316af1b" message="data table had created"/>
+	</flow>
+	<flow name="mysql_db_bulk_insert" doc:id="55cf1a33-a64a-4cbd-b72f-8e04d1eca109" initialState="started">
+		<db:bulk-insert doc:name="Bulk insert" doc:id="7a64efe1-6688-48ab-8ed4-5566cc9daae4" config-ref="Database_Config">
+			<db:sql><![CDATA[insert into abm_college values(:roll_no, :stu_name, :stu_class,
+ :stu_percentage, :stu_email, :stu_ph, :s_no);]]></db:sql>
+		</db:bulk-insert>
+		<logger level="INFO" doc:name="Logger1" doc:id="ec160e20-0794-425e-beee-561445faebcf" message="#[payload]" />
+		<db:select doc:name="Select" doc:id="0c536158-f126-4a7b-aecc-b775c6b0a1c2" config-ref="Database_Config">
+			<db:sql><![CDATA[select * from abm_college;]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="02d90e2e-6c49-440a-8927-4a6bcf83f7cc">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger2" doc:id="44306733-9b8e-4441-a7cc-5cc61578e3e7" message="inserted new row are : #[payload]"/>
+		<sftp:write doc:name="Write" doc:id="5774b8c3-ccf2-4adb-a9a3-687eab4c412a" config-ref="SFTP_Config" path="OUTBOUND/inserted_sno.json" createParentDirectories="false"/>
+	</flow>
+	<flow name="mysql_db_read" doc:id="f947b81d-eb9c-4e1f-a530-8bb54e846bda" initialState="started">
+		<http:listener doc:name="Listener" doc:id="534ad65e-53e7-4aef-bb8c-c80f2d65dabb" config-ref="HTTP_Listener_config" path="/path"/>
+		<ftp:read doc:name="Read" doc:id="91fef6cc-e695-4b9c-b4e0-2e66a848f2b4" config-ref="FTP_Config" path="INPUT\insert.csv"/>
+		<ee:transform doc:name="Transform Message" doc:id="eebb2e69-f053-44f5-b1a5-b23746fd73ac" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	roll_no: payload01.roll_no,
+	stu_name: payload01.stu_name,
+	stu_class: payload01.stu_class,
+	stu_percentage: payload01.stu_percentage as Number,
+	stu_email: payload01.stu_email,
+	stu_ph: payload01.stu_ph,
+	s_no:payload01.s_no as Number
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="8bd9cef3-84de-43f2-9bae-2761c23dbf22" message="#[payload]"/>
+		<flow-ref doc:name="Flow Reference" doc:id="71358709-4de7-475a-bc35-782ee53c88ab" name="mysql_db_bulk_insert"/>
+	</flow>
+	<flow name="mysql_db_bulkupdate" doc:id="45290f92-9bb4-49d3-adcf-29b97c3eb0de" initialState="stopped">
+		<db:bulk-update doc:name="Bulk update" doc:id="7710dba5-3cbb-4fab-b28c-08d18f212e0e" config-ref="Database_Config">
+			<db:sql ><![CDATA[UPDATE abm_college
+SET s_no=:s_no, roll_no=:roll_no, stu_name =:stu_name,stu_class=:stu_class,
+stu_percentage=:stu_percentage,stu_email=:stu_email,stu_ph=:stu_ph
+WHERE roll_no=:roll_no;
+]]></db:sql>
+		</db:bulk-update>
+		<logger level="INFO" doc:name="Logger" doc:id="f4bbff56-3128-439c-9e6d-1b9e65101fc3" message="number of updated now rows are :#[payload]"/>
+		<db:select doc:name="Select" doc:id="c9245c25-66ca-4c31-a041-419a0613ea6d" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from abm_college;]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="4498b0b7-b133-44ff-90a6-d23161cd583a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="51d93ee9-e1a8-48ee-a142-224c28be47d0" message="updated now rows are: #[payload]"/>
+		<sftp:write doc:name="Write" doc:id="531fc728-0d80-461d-a4e6-cbf814101f5a" config-ref="SFTP_Config" path="/OUTBOUND/updated_db_table.json" createParentDirectories="false"/>
+	</flow>
+	<flow name="mysql_db_delete" doc:id="8fa27b1c-c851-4873-8cfb-be305f1436ca" initialState="stopped">
+		<db:bulk-delete doc:name="Bulk delete" doc:id="a99cae1e-754c-4154-afb4-f916abbc5236" config-ref="Database_Config">
+			<db:sql ><![CDATA[DELETE FROM abm_college WHERE roll_no=:roll_no;]]></db:sql>
+		</db:bulk-delete>
+		<logger level="INFO" doc:name="Logger" doc:id="3cb0338d-4f08-49f8-b196-3a0a1b58658b" />
+	</flow>
+</mule>
