@@ -1,0 +1,36 @@
+[{
+	"roll_no": "123456",
+	"stu_name": "rama",
+	"stu_class": "B.Tech",
+	"stu_percentage": 70,
+	"stu_email": "rama@gmail.com",
+	"stu_ph": 991240402
+}, {
+	"roll_no": "123457",
+	"stu_name": "rao",
+	"stu_class": "B.Tech",
+	"stu_percentage": 60,
+	"stu_email": "rao@gmail.com",
+	"stu_ph": 991240403
+}, {
+	"roll_no": "123458",
+	"stu_name": "ravana",
+	"stu_class": "M.Tech",
+	"stu_percentage": 80,
+	"stu_email": "ravana@gmail.com",
+	"stu_ph": 991240402
+}, {
+	"roll_no": "123459",
+	"stu_name": "siva",
+	"stu_class": "M.Tech",
+	"stu_percentage": 60,
+	"stu_email": "rama@gmail.com",
+	"stu_ph": 991240401
+}, {
+	"roll_no": "123451",
+	"stu_name": "christ",
+	"stu_class": "B.Tech",
+	"stu_percentage": 90,
+	"stu_email": "christ@gmail.com",
+	"stu_ph": 99240400
+}]
